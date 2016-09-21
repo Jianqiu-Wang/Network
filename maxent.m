@@ -25,13 +25,7 @@
 
 
   fprintf('Enter main loop\n');
-  while not(cond1)
-
-    fprintf('Run with alpha = %e\n', alpha);
-    % Save old values in case we need to reduce alpha step and go back
-
-    % Newton iteration
-    %    % Me: Newton-Raphson iterantion to solve equation(22)
+  while not(cond1)    fprintf('Run with alpha = %e\n', alpha);    % Save old values in case we need to reduce alpha step and go back    % Newton iteration    %    % Me: Newton-Raphson iterantion to solve equation(22)
     while 1      % Take a Newton step
       xi = mu_hat - mu(1:M) + alpha*(sigma.^2).*lambda0;      % Me: from equation (25)
       fprintf('Newton step (rnorm: %e)\n', norm(xi));      H = zeros(M);      % Me: Calculate Hession Matrix from equation (27)
