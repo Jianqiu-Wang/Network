@@ -1,5 +1,5 @@
 %% [D, mu] = maxent(mu_hat, sigma, lambda, Nbin)%% Compute Chebyshev moments density of states by MEMfunction [D,mu] = maxent(mu_hat,sigma,lambda,Nbin)  % calcualte Jackson kernal
-  kpm = filter_jackson(mu_hat);  %% mu_hat is a normolized matrix  % Normalize input data  %  scale_factor = mu_hat(1);  sigma  = sigma  / scale_factor;  mu_hat = mu_hat / scale_factor;  % Initialization
+  kpm = filter_jackson(mu_hat);  %% mu_hat is a normolized matrix  % Me: can transform into H = aX+b ??? Do the eigenvalue of x in [-1,1] ??  % Normalize input data  %  scale_factor = mu_hat(1);  sigma  = sigma  / scale_factor;  mu_hat = mu_hat / scale_factor;  % Initialization
   %
   M = length(mu_hat);
   K = 4;               % Extrapolation 4 <= K <= 10
@@ -31,19 +31,13 @@
     % Save old values in case we need to reduce alpha step and go back
 
     % Newton iteration
-    %
-    while 1
-
-      % Take a Newton step
-      xi = mu_hat - mu(1:M) + alpha*(sigma.^2).*lambda0;
-      fprintf('Newton step (rnorm: %e)\n', norm(xi));
-      H = zeros(M);
-      for r=1:M
-        for c=1:M
-          H(r,c) = ( mu(r+c-1) + mu(abs(r-c)+1) )/2;
-        end
-        H(r,r) = H(r,r) + alpha*(sigma(r))^2;
-      end
+    %    % Me: Newton-Raphson iterantion to solve equation(22)
+    while 1      % Take a Newton step
+      xi = mu_hat - mu(1:M) + alpha*(sigma.^2).*lambda0;      % Me: from equation (25)
+      fprintf('Newton step (rnorm: %e)\n', norm(xi));      H = zeros(M);      % Me: Calculate Hession Matrix from equation (27)
+      % ?? If r=c, should H(r,r) be $mu(r+r)
+      % Answer: No, since mu starts from 0, should use +/-1
+      for r=1:M        for c=1:M          H(r,c) = ( mu(r+c-1) + mu(abs(r-c)+1) )/2;        end        H(r,r) = H(r,r) + alpha*(sigma(r))^2;      end
       lambda0 = lambda0-H\xi;
 
       d = dnought2d(d0,L,M,lambda0);  % eq(23) function at the bottom. Get D with new lambda.
@@ -52,9 +46,11 @@
       %This line calculates relative entropy eq(19) with L discrete samples by the trapezoidal rule.
       S = sum( (d - d0 - d.*log(d./d0))*(pi/(length(d)-1)) );
 
-      chi2 = sum( (((mu_hat-mu(1:M))./sigma)).^2 );  % Calculate chi_square
-      Qp = S - chi2/(2*alpha);
-      Qd = Qp + sum( (xi.^2)./(2*alpha*(sigma.^2)) );
+      chi2 = sum( (((mu_hat-mu(1:M))./sigma)).^2 );  % Calculate chi_square      % Me: this comes from equation (17)
+
+      Qp = S - chi2/(2*alpha);      % Me: equation (20)
+      Qd = Qp + sum( (xi.^2)./(2*alpha*(sigma.^2)) );      % Me: xi is just $\xi$ in equation (25)
+      % Me: this comes from equation (28)
 
       fprintf('  -> Qd = %e, Qp = %e, Chi2 = %e\n', Qd, Qp,chi2);
       % Termination criterion (below (28))
