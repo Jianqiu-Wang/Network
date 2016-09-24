@@ -8,7 +8,7 @@
 
   % Apply filter for extrapolated sum -- then work with modified moments
   %
-  mu = zeros(M*K,1);  mu(1:M) = mu_hat;  mu = filter_jackson(mu);  mu_hat(1:M) = mu(1:M);  mu(1:M) = filter_jackson(mu(1:M));  %% what the hell are you doing ......
+  mu = zeros(M*K,1);   % Me: exact mu   mu(1:M) = mu_hat;  mu = filter_jackson(mu);  mu_hat(1:M) = mu(1:M);  mu(1:M) = filter_jackson(mu(1:M));  %% what the hell are you doing ......
 
   chi2    = sum( (((mu_hat-mu(1:M))./sigma)).^2 )
   alpha   = chi2;
@@ -17,11 +17,7 @@
   d0      = dnought(mu,L,M);
 
   step = 1/2;
-
-  % termination criterion, according to paper
-  %  Outer loop: cond1 (mentioned above eq(21))
-  %  Middle loop: cond2 (init. false)
-  cond1 = (chi2 <= M);
+  % termination criterion, according to paper  %  Outer loop: cond1 (mentioned above eq(21))  %  Middle loop: cond2 (init. false)  cond1 = (chi2 <= M);
 
 
   fprintf('Enter main loop\n');
